@@ -5,7 +5,7 @@ export const useUserStore = defineStore('user', () => {
     const user = ref({
         id: '',
         email: '',
-        is_login: false,
+        is_login: true,
     })
 
     return { user }
