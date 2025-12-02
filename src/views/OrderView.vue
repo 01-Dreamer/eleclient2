@@ -16,7 +16,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">待支付订单</span>
-            <el-tag type="warning" size="small" effect="dark">未支付</el-tag>
+            <el-badge :value="buyer_unpaid.length" :max="99" class="header-badge" />
           </div>
         </template>
         <el-collapse>
@@ -46,7 +46,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">进行中的订单</span>
-            <el-tag type="success" size="small" effect="dark">配送中</el-tag>
+            <el-badge :value="buyer_ongoing.length" :max="99" class="header-badge" type="primary" />
           </div>
         </template>
         <el-collapse>
@@ -131,7 +131,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">待处理订单</span>
-            <el-badge :value="merchant_pending.length" class="item" type="danger" />
+            <el-badge :value="merchant_pending.length" :max="99" class="header-badge" />
           </div>
         </template>
         <el-collapse>
@@ -163,7 +163,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">进行中的订单</span>
-            <el-tag type="primary" size="small" effect="dark">处理中</el-tag>
+            <el-badge :value="merchant_ongoing.length" :max="99" class="header-badge" type="primary" />
           </div>
         </template>
         <el-collapse>
@@ -195,7 +195,7 @@
       <el-card class="order-section">
         <template #header>
           <div class="order-header">
-            <span class="section-title">历史订单评价</span>
+            <span class="section-title">历史订单</span>
           </div>
         </template>
         <el-collapse>
@@ -219,7 +219,8 @@
                             <el-tag type="info" size="small">顾客暂未评价</el-tag>
                         </div>
                     </div>
-                    <div class="btn-group-right">
+                    <div class="btn-group">
+                        <el-button type="info" plain size="small" @click="handleContactRider(order.id)">联系骑手</el-button>
                         <el-button type="info" plain size="small" @click="handleContactBuyer(order.id)">联系买家</el-button>
                     </div>
                 </div>
@@ -233,7 +234,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">待抢单大厅</span>
-            <el-icon color="#409EFF"><Bicycle /></el-icon>
+             <el-badge :value="rider_pool.length" :max="99" class="header-badge" />
           </div>
         </template>
         <el-collapse>
@@ -255,7 +256,7 @@
                         </div>
                     </div>
                     <div class="rider-info">
-                        <span>含配送费: <b style="color:red">¥{{ order.income }}</b></span>
+                        <span>配送费: <b style="color:red">¥{{ order.income }}</b></span>
                         <span>距离: {{ order.distance }}km</span>
                     </div>
                     <el-button type="primary" style="width: 100%; margin-top: 2vw" @click="handleRiderGrab(order.id)">立即抢单</el-button>
@@ -268,7 +269,7 @@
         <template #header>
           <div class="order-header">
             <span class="section-title">配送中</span>
-            <el-tag effect="dark" type="success" size="small">进行中</el-tag>
+            <el-badge :value="rider_delivering.length" :max="99" class="header-badge" type="primary" />
           </div>
         </template>
         <div class="empty-tip" v-if="rider_delivering.length === 0">暂无配送中订单</div>
@@ -346,10 +347,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import HeaderBase from '@/components/HeaderBase.vue';
-import { Bicycle } from '@element-plus/icons-vue';
 
 const activeTab = ref('buyer');
-
 const buyer_unpaid = ref([
   {
     id: 101,
@@ -526,6 +525,12 @@ const handleRiderFinish = (id: number) => console.log('骑手送达:', id);
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+.tab-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .order-container {
   padding: 3vw;
   margin-top: 24vw;
@@ -550,6 +555,10 @@ const handleRiderFinish = (id: number) => console.log('骑手送达:', id);
   font-size: 4vw;
   font-weight: bold;
   color: #333;
+}
+
+.header-badge {
+    margin-right: 1vw;
 }
 
 .order-title {

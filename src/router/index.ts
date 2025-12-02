@@ -37,7 +37,13 @@ const routes = [
     name: 'mine',
     component: () => import('@/views/MineView.vue'),
     meta: { requiresAuth: true }
-  }
+  },
+  {
+    path: '/merchant/:id',
+    name: 'merchant',
+    component: () => import('@/views/MerchantView.vue'),
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = createRouter({

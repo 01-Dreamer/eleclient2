@@ -38,13 +38,7 @@
 
     <ul class="foodtype">
       <li v-for="(item, index) in foodTypes" :key="index">
-        <el-image :src="item.img" fit="cover" loading="lazy">
-          <template #error>
-            <div class="image-slot"><el-icon>
-                <Picture />
-              </el-icon></div>
-          </template>
-        </el-image>
+        <el-image :src="item.img" fit="cover" loading="lazy" />
         <p>{{ item.name }}</p>
       </li>
     </ul>
@@ -110,7 +104,7 @@
             <div class="star-wrapper">
               <el-rate v-model="business.store_review" disabled show-score text-color="#ff9900" score-template="{value}"
                 size="small" />
-              <span class="sales">月售{{ business.store_volume }}单</span>
+              <span class="sales">销售{{ business.store_volume }}单</span>
             </div>
             <el-tag effect="dark" type="primary" size="small" class="delivery-tag">蜂鸟专送</el-tag>
           </div>
