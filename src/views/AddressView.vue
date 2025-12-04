@@ -5,58 +5,52 @@
 
     <div class="address-container">
         
-        <div class="section-title">店铺位置</div>
+        <div class="section-header">当前店铺</div>
         <div class="address-card shop-card">
-            <div class="card-left">
-                <div class="icon-wrapper shop-icon-bg">
-                    <el-icon color="#fff" :size="20"><Shop /></el-icon>
+            <div class="card-content">
+                <div class="main-text-row">
+                    <span class="main-text">{{ shopAddress.name }}</span>
+                    <el-tag size="small" type="warning" effect="dark" round class="mini-tag">当前</el-tag>
                 </div>
-                <div class="info-content">
-                    <div class="top-row">
-                        <span class="name">{{ shopAddress.name }}</span>
-                        <el-tag size="small" type="warning" effect="dark" round>当前店铺</el-tag>
-                    </div>
-                    <div class="address-text">{{ shopAddress.address }}</div>
-                    <div class="contact-text">{{ shopAddress.contactName }} {{ shopAddress.phone }}</div>
-                </div>
+                <div class="sub-text">{{ shopAddress.address }}</div>
+                <div class="sub-text highlight">{{ shopAddress.contactName }} {{ shopAddress.phone }}</div>
             </div>
-            <div class="card-right" @click="handleEditShop">
-                <el-icon :size="20" color="#999"><EditPen /></el-icon>
+            <div class="card-action" @click="handleEditShop">
+                <el-icon :size="18" color="#999"><EditPen /></el-icon>
             </div>
         </div>
 
-        <div class="section-title">我的位置</div>
+        <div class="section-header">我的收货地址</div>
         <div class="address-list">
-            <div v-for="(item, index) in myAddresses" :key="item.id" class="address-card">
-                <div class="card-left">
-                    <div class="icon-wrapper user-icon-bg">
-                        <el-icon color="#fff" :size="18"><MapLocation /></el-icon>
+            <div v-for="(item, index) in myAddresses" :key="item.id" class="address-item">
+                <div class="item-body" @click="handleEditUserAddress(item.id)">
+                    <div class="address-row">
+                        <span class="location-text">
+                            <el-tag v-if="item.label" size="small" effect="plain" class="address-tag">{{ item.label }}</el-tag>
+                            {{ item.address }} {{ item.detail }}
+                        </span>
                     </div>
-                    <div class="info-content">
-                        <div class="top-row">
-                            <span class="name">{{ item.address }}</span>
-                            <el-tag v-if="item.label" size="small" effect="plain">{{ item.label }}</el-tag>
-                        </div>
-                        <div class="address-text">{{ item.detail }}</div>
-                        <div class="contact-text">{{ item.consignee }} {{ item.phone }}</div>
+                    <div class="user-row">
+                        <span class="user-name">{{ item.consignee }}</span>
+                        <span class="user-phone">{{ item.phone }}</span>
                     </div>
                 </div>
                 
-                <div class="action-buttons">
-                    <div class="action-btn" @click="handleEditUserAddress(item.id)">
-                        <el-icon :size="20" color="#999"><EditPen /></el-icon>
+                <div class="item-actions">
+                    <div class="icon-btn" @click.stop="handleEditUserAddress(item.id)">
+                        <el-icon :size="18"><EditPen /></el-icon>
                     </div>
-                    <div class="action-btn delete-btn" @click="handleDeleteUserAddress(item.id)">
-                        <el-icon :size="20" color="#F56C6C"><Delete /></el-icon>
+                    <div class="icon-btn delete" @click.stop="handleDeleteUserAddress(item.id)">
+                        <el-icon :size="18"><Delete /></el-icon>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bottom-placeholder"></div> <div class="bottom-bar">
+        <div class="bottom-placeholder"></div>
+        <div class="bottom-bar">
             <el-button type="primary" class="add-btn" round size="large" @click="handleAddAddress">
-                <el-icon style="margin-right: 5px"><Plus /></el-icon>
-                新增收货地址
+                <el-icon style="margin-right: 4px"><Plus /></el-icon> 新增地址
             </el-button>
         </div>
 
@@ -66,23 +60,22 @@
 <script lang="ts" setup>
 import HeaderBase from '@/components/HeaderBase.vue';
 import { reactive } from 'vue';
-import { Shop, MapLocation, EditPen, Delete, Plus } from '@element-plus/icons-vue';
+import { EditPen, Delete, Plus } from '@element-plus/icons-vue';
 
-// 模拟数据：店铺位置 (只有一条)
+// 数据保持不变
 const shopAddress = reactive({
     id: 1,
     name: '肯德基(北京西站店)',
-    address: '北京市丰台区莲花池东路118号北京西站F1',
+    address: '丰台区莲花池东路118号北京西站F1',
     contactName: '店长张三',
     phone: '13800138000'
 });
 
-// 模拟数据：我的位置 (多条)
 const myAddresses = reactive([
     {
         id: 101,
         address: '北京大学',
-        detail: '海淀区颐和园路5号48号楼302室',
+        detail: '48号楼302室',
         consignee: '王同学',
         phone: '13911112222',
         label: '学校'
@@ -90,163 +83,174 @@ const myAddresses = reactive([
     {
         id: 102,
         address: '腾讯大厦',
-        detail: '海淀区海淀大街38号',
+        detail: '海淀大街38号',
         consignee: '王先生',
-        phone: '13911112222',
+        phone: '18600009999',
         label: '公司'
+    },
+    {
+        id: 103,
+        address: '万科星园',
+        detail: '12号楼2单元501',
+        consignee: '小王',
+        phone: '13588887777',
+        label: ''
     }
 ]);
 
-// --- 事件处理 ---
-
-// 修改店铺位置
-const handleEditShop = () => {
-    console.log("点击了 [修改店铺位置] - ID:", shopAddress.id);
-};
-
-// 修改用户地址
-const handleEditUserAddress = (id: number) => {
-    console.log("点击了 [修改我的位置] - ID:", id);
-};
-
-// 删除用户地址
-const handleDeleteUserAddress = (id: number) => {
-    console.log("点击了 [删除我的位置] - ID:", id);
-    // 实际逻辑中这里应该弹窗确认 confirm，然后调接口
-};
-
-// 新增地址
-const handleAddAddress = () => {
-    console.log("点击了 [新增地址]");
-};
-
+const handleEditShop = () => console.log("Edit Shop");
+const handleEditUserAddress = (id: number) => console.log("Edit User", id);
+const handleDeleteUserAddress = (id: number) => console.log("Delete User", id);
+const handleAddAddress = () => console.log("Add Address");
 </script>
 
 <style scoped>
 .address-container {
-    padding: 20px;
-    padding-top: 14vw; 
-    background-color: #f5f5f5;
+    padding-top: 14vw; /* 保持原有的顶部避让 */
+    padding-bottom: 20px;
+    background-color: #f7f8fa; /* 更淡的背景色，护眼 */
     min-height: 100vh;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
-.section-title {
-    font-size: 14px;
-    color: #666;
-    margin-left: 4px;
-    margin-bottom: -5px; /* 拉近标题和卡片的距离 */
+.section-header {
+    font-size: 13px;
+    color: #909399;
+    padding: 15px 15px 8px; /* 左侧对齐 */
 }
 
-/* 卡片通用样式 */
-.address-card {
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 16px;
+/* --- 店铺卡片 (特殊样式) --- */
+.address-card.shop-card {
+    background: #fff;
+    margin: 0 12px; /* 左右留一点边距 */
+    padding: 15px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
-.card-left {
-    display: flex;
-    align-items: flex-start;
-    flex: 1; /* 占据剩余空间 */
-    overflow: hidden; /* 防止文字过长撑开 */
-}
-
-/* 图标容器 */
-.icon-wrapper {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 12px;
-    flex-shrink: 0;
-}
-
-.shop-icon-bg {
-    background-color: #ff9900; /* 店铺用橙色 */
-}
-
-.user-icon-bg {
-    background-color: #0097FF; /* 用户用蓝色 */
-}
-
-/* 文本信息区域 */
-.info-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.card-content {
     flex: 1;
+    margin-right: 10px;
 }
 
-.top-row {
+.main-text-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    margin-bottom: 4px;
 }
 
-.name {
+.main-text {
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 600;
     color: #333;
-    /* 文字超长省略 */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 160px;
+    margin-right: 6px;
 }
 
-.address-text {
+.mini-tag {
+    height: 18px;
+    line-height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+}
+
+.sub-text {
     font-size: 13px;
     color: #666;
     line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* 最多显示2行 */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
-
-.contact-text {
+.sub-text.highlight {
     font-size: 12px;
     color: #999;
+    margin-top: 2px;
 }
 
-/* 右侧按钮区域 */
-.card-right {
-    padding-left: 15px;
-    border-left: 1px solid #eee;
-    margin-left: 10px;
-    height: 40px;
+/* --- 地址列表 (仿原生列表风格) --- */
+.address-list {
+    background: #fff;
+    /* 如果希望是通栏风格（左右无缝），可以去掉 margin 和 border-radius */
+    margin: 0 12px; 
+    border-radius: 8px;
+    overflow: hidden; /* 圆角 */
+}
+
+.address-item {
     display: flex;
     align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0; /* 细分割线 */
+    transition: background-color 0.2s;
+}
+
+.address-item:last-child {
+    border-bottom: none;
+}
+
+.address-item:active {
+    background-color: #f9f9f9; /* 点击反馈 */
+}
+
+.item-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-right: 10px;
+}
+
+.address-row {
+    line-height: 1.4;
+}
+
+.location-text {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+
+.address-tag {
+    margin-right: 4px;
+    border: none;
+    background-color: #e6f7ff;
+    color: #1890ff;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 4px;
+}
+
+.user-row {
+    font-size: 13px;
+    color: #999;
+    display: flex;
+    align-items: center;
+}
+
+.user-name {
+    margin-right: 10px;
+    color: #666; /* 名字稍微深一点 */
+}
+
+/* 右侧操作区 */
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* 按钮之间的间距 */
+}
+
+.icon-btn {
+    padding: 4px;
+    color: #999;
     cursor: pointer;
 }
 
-.action-buttons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding-left: 15px;
-    border-left: 1px solid #eee;
-    margin-left: 10px;
+.icon-btn.delete {
+    color: #ff4d4f; /* 删除红色，但不刺眼 */
 }
 
-.action-btn {
-    padding: 5px;
-    cursor: pointer;
-}
-
-/* 底部固定按钮 */
+/* 底部按钮 */
 .bottom-placeholder {
-    height: 80px; /* 占位，防止内容被底部遮挡 */
+    height: 80px;
 }
 
 .bottom-bar {
@@ -254,19 +258,19 @@ const handleAddAddress = () => {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 80px;
+    height: 70px; /* 稍微调矮一点 */
     background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 -1px 6px rgba(0,0,0,0.05);
     z-index: 100;
 }
 
 .add-btn {
     width: 90%;
-    font-weight: bold;
-    font-size: 16px;
-    height: 48px;
+    height: 44px; /* 移动端按钮标准高度 */
+    font-size: 15px;
+    font-weight: 500;
 }
 </style>
