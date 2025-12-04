@@ -164,13 +164,17 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router'
 import HeaderBase from "@/components/HeaderBase.vue";
 import { 
-  Delete, Plus, Minus, ShoppingCart, Picture, Phone, CaretTop, CaretBottom 
+  Delete, Plus, Minus, ShoppingCart, Phone, CaretTop, CaretBottom 
 } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { useUserStore } from '@/stores/user';
 
-const is_merchant = ref(false);
+const userStore = useUserStore();
+const route = useRoute();
+const is_merchant = ref(userStore.user.id === Number(route.params.id));
 
 const merchant_info = ref({
   name: '麦当劳（科技园店）',

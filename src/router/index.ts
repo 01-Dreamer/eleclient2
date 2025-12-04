@@ -44,6 +44,23 @@ const routes = [
     component: () => import('@/views/MerchantView.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/chat/:id',
+    name: 'chat',
+    component: () => import('@/views/ChatView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/address',
+    name: 'address',
+    component: () => import('@/views/AddressView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: '404',
+    component: () => import('@/views/404View.vue')
+  }
 ]
 
 const router = createRouter({

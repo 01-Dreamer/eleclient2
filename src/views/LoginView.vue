@@ -11,8 +11,8 @@
     </el-form-item>
     <el-form-item class="input-form" label="验证码:">
       <div class="captcha-content">
-        <el-input class="captcha-text"placeholder="请输入验证码..."></el-input>
-        <img class="captcha-img">
+        <el-input class="captcha-text" placeholder="请输入验证码..."></el-input>
+        <el-image :src="base64_img" class="captcha-img" />
       </div>
     </el-form-item>
   </div>
@@ -26,7 +26,9 @@
 
 <script lang="ts" setup>
 import HeaderBase from '@/components/HeaderBase.vue';
+import { ref } from 'vue';
 
+const base64_img = ref('')
 
 </script>
 
