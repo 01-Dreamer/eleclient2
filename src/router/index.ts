@@ -57,6 +57,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/map',
+    name: 'map',
+    component: () => import('@/views/MapView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:catchAll(.*)',
     name: '404',
     component: () => import('@/views/404View.vue')

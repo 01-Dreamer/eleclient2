@@ -5,38 +5,38 @@
 
     <div class="address-container">
         
-        <div class="section-header">当前店铺</div>
+        <div class="section-header">我的店铺</div>
         <div class="address-card shop-card">
             <div class="card-content">
-                <div class="main-text-row">
-                    <span class="main-text">{{ shopAddress.name }}</span>
-                    <el-tag size="small" type="warning" effect="dark" round class="mini-tag">当前</el-tag>
-                </div>
-                <div class="sub-text">{{ shopAddress.address }}</div>
-                <div class="sub-text highlight">{{ shopAddress.contactName }} {{ shopAddress.phone }}</div>
+                <div class="main-address-text">{{ shop_address.address }}</div>
             </div>
             <div class="card-action" @click="handleEditShop">
                 <el-icon :size="18" color="#999"><EditPen /></el-icon>
             </div>
         </div>
 
-        <div class="section-header">我的收货地址</div>
+        <div class="section-header">我的位置</div>
         <div class="address-list">
-            <div v-for="(item, index) in myAddresses" :key="item.id" class="address-item">
-                <div class="item-body" @click="handleEditUserAddress(item.id)">
+            <div 
+                v-for="(item, index) in my_addresses" 
+                :key="item.id" 
+                class="address-item"
+                :class="{ 'is-selected': selected_address_id === item.id }"
+                @click="handleSelectAddress(item.id)"
+            >
+                <div class="item-body">
                     <div class="address-row">
-                        <span class="location-text">
-                            <el-tag v-if="item.label" size="small" effect="plain" class="address-tag">{{ item.label }}</el-tag>
-                            {{ item.address }} {{ item.detail }}
-                        </span>
+                        <span class="location-text">{{ item.address }}</span>
                     </div>
                     <div class="user-row">
-                        <span class="user-name">{{ item.consignee }}</span>
-                        <span class="user-phone">{{ item.phone }}</span>
+                        <span class="user-name">{{ item.nickname }}</span>
                     </div>
                 </div>
                 
                 <div class="item-actions">
+                    <div v-if="selected_address_id === item.id" class="check-mark">
+                        <el-icon :size="20" color="#409eff"><Select /></el-icon>
+                    </div>
                     <div class="icon-btn" @click.stop="handleEditUserAddress(item.id)">
                         <el-icon :size="18"><EditPen /></el-icon>
                     </div>
@@ -47,86 +47,152 @@
             </div>
         </div>
 
-        <div class="bottom-placeholder"></div>
-        <div class="bottom-bar">
-            <el-button type="primary" class="add-btn" round size="large" @click="handleAddAddress">
+        <div class="add-address-row">
+            <el-button class="add-btn" round size="large" @click="handleAddAddress">
                 <el-icon style="margin-right: 4px"><Plus /></el-icon> 新增地址
             </el-button>
         </div>
+
+        <el-dialog
+            v-model="dialog_visible"
+            :title="is_editing_shop ? '修改店铺地址' : '修改地址'"
+            width="90%"
+            align-center
+            destroy-on-close
+            class="simple-dialog"
+        >
+            <el-form label-position="top">
+                <el-form-item label="详细地址">
+                    <el-input 
+                        v-model="edit_form.address" 
+                        placeholder="请输入完整地址" 
+                        type="textarea" 
+                        :rows="3"
+                        resize="none"
+                    ></el-input>
+                </el-form-item>
+                
+                <el-form-item label="昵称" v-if="!is_editing_shop">
+                    <el-input v-model="edit_form.nickname" placeholder="请输入昵称"></el-input>
+                </el-form-item>
+            </el-form>
+            
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="dialog_visible = false">取消</el-button>
+                    <el-button type="primary" @click="handleConfirmEdit">确认</el-button>
+                </div>
+            </template>
+        </el-dialog>
 
     </div>
 </template>
 
 <script lang="ts" setup>
 import HeaderBase from '@/components/HeaderBase.vue';
-import { reactive } from 'vue';
-import { EditPen, Delete, Plus } from '@element-plus/icons-vue';
+import { reactive, ref } from 'vue';
+import { EditPen, Delete, Plus, Select } from '@element-plus/icons-vue';
 
-// 数据保持不变
-const shopAddress = reactive({
-    id: 1,
-    name: '肯德基(北京西站店)',
-    address: '丰台区莲花池东路118号北京西站F1',
-    contactName: '店长张三',
-    phone: '13800138000'
+const selected_address_id = ref(101);
+const dialog_visible = ref(false);
+const is_editing_shop = ref(false);
+const current_editing_id = ref<number | null>(null);
+
+const edit_form = reactive({
+    address: '',
+    nickname: ''
 });
 
-const myAddresses = reactive([
+const shop_address = reactive({
+    address: '丰台区莲花池东路118号北京西站F1',
+});
+
+const my_addresses = reactive([
     {
         id: 101,
-        address: '北京大学',
-        detail: '48号楼302室',
-        consignee: '王同学',
-        phone: '13911112222',
-        label: '学校'
+        address: '北京市海淀区北京大学48号楼302室',
+        nickname: '王同学'
     },
     {
         id: 102,
-        address: '腾讯大厦',
-        detail: '海淀大街38号',
-        consignee: '王先生',
-        phone: '18600009999',
-        label: '公司'
+        address: '北京市海淀区海淀大街38号腾讯大厦',
+        nickname: '王先生'
     },
     {
         id: 103,
-        address: '万科星园',
-        detail: '12号楼2单元501',
-        consignee: '小王',
-        phone: '13588887777',
-        label: ''
+        address: '北京市朝阳区万科星园12号楼2单元501',
+        nickname: '小王'
     }
 ]);
 
-const handleEditShop = () => console.log("Edit Shop");
-const handleEditUserAddress = (id: number) => console.log("Edit User", id);
-const handleDeleteUserAddress = (id: number) => console.log("Delete User", id);
-const handleAddAddress = () => console.log("Add Address");
+const handleSelectAddress = (id: number) => {
+    selected_address_id.value = id;
+};
+
+const handleEditShop = () => {
+    is_editing_shop.value = true;
+    current_editing_id.value = null;
+    
+    edit_form.address = shop_address.address;
+    edit_form.nickname = ''; 
+    
+    dialog_visible.value = true;
+};
+
+const handleEditUserAddress = (id: number) => {
+    is_editing_shop.value = false;
+    current_editing_id.value = id;
+    
+    const target = my_addresses.find(item => item.id === id);
+    if (target) {
+        edit_form.address = target.address;
+        edit_form.nickname = target.nickname;
+    }
+    
+    dialog_visible.value = true;
+};
+
+const handleConfirmEdit = () => {
+    if (is_editing_shop.value) {
+        console.log('shop_address_update:', edit_form.address);
+    } else {
+        console.log('user_address_id:', current_editing_id.value);
+        console.log('new_info:', {
+            address: edit_form.address,
+            nickname: edit_form.nickname
+        });
+    }
+    
+    dialog_visible.value = false;
+};
+
+const handleDeleteUserAddress = (id: number) => console.log("delete_id", id);
+const handleAddAddress = () => console.log("add_address_clicked");
 </script>
 
 <style scoped>
 .address-container {
-    padding-top: 14vw; /* 保持原有的顶部避让 */
-    padding-bottom: 20px;
-    background-color: #f7f8fa; /* 更淡的背景色，护眼 */
+    padding-top: 14vw;
+    padding-bottom: 80px; 
+    background-color: #f7f8fa;
     min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .section-header {
     font-size: 13px;
     color: #909399;
-    padding: 15px 15px 8px; /* 左侧对齐 */
+    padding: 15px 15px 8px;
 }
 
-/* --- 店铺卡片 (特殊样式) --- */
 .address-card.shop-card {
     background: #fff;
-    margin: 0 12px; /* 左右留一点边距 */
-    padding: 15px;
+    margin: 0 12px;
+    padding: 20px 15px; 
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; 
     box-shadow: 0 1px 4px rgba(0,0,0,0.03);
 }
 
@@ -135,60 +201,37 @@ const handleAddAddress = () => console.log("Add Address");
     margin-right: 10px;
 }
 
-.main-text-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-.main-text {
+.main-address-text {
     font-size: 16px;
     font-weight: 600;
     color: #333;
-    margin-right: 6px;
-}
-
-.mini-tag {
-    height: 18px;
-    line-height: 16px;
-    padding: 0 4px;
-    font-size: 10px;
-}
-
-.sub-text {
-    font-size: 13px;
-    color: #666;
     line-height: 1.4;
-}
-.sub-text.highlight {
-    font-size: 12px;
-    color: #999;
-    margin-top: 2px;
+    word-break: break-all; 
 }
 
-/* --- 地址列表 (仿原生列表风格) --- */
 .address-list {
-    background: #fff;
-    /* 如果希望是通栏风格（左右无缝），可以去掉 margin 和 border-radius */
     margin: 0 12px; 
-    border-radius: 8px;
-    overflow: hidden; /* 圆角 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .address-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
     display: flex;
     align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #f0f0f0; /* 细分割线 */
-    transition: background-color 0.2s;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.address-item:last-child {
-    border-bottom: none;
-}
-
-.address-item:active {
-    background-color: #f9f9f9; /* 点击反馈 */
+.address-item.is-selected {
+    border-color: #409eff;
+    background-color: #f0f9ff;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
 }
 
 .item-body {
@@ -199,78 +242,54 @@ const handleAddAddress = () => console.log("Add Address");
     margin-right: 10px;
 }
 
-.address-row {
-    line-height: 1.4;
-}
-
 .location-text {
     font-size: 15px;
     color: #333;
     font-weight: 500;
-}
-
-.address-tag {
-    margin-right: 4px;
-    border: none;
-    background-color: #e6f7ff;
-    color: #1890ff;
-    height: 20px;
-    line-height: 20px;
-    padding: 0 4px;
+    line-height: 1.4;
+    word-break: break-all;
 }
 
 .user-row {
     font-size: 13px;
-    color: #999;
-    display: flex;
-    align-items: center;
+    color: #666;
 }
 
-.user-name {
-    margin-right: 10px;
-    color: #666; /* 名字稍微深一点 */
-}
-
-/* 右侧操作区 */
 .item-actions {
     display: flex;
     align-items: center;
-    gap: 16px; /* 按钮之间的间距 */
+    gap: 12px;
+}
+
+.check-mark {
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
 }
 
 .icon-btn {
-    padding: 4px;
-    color: #999;
-    cursor: pointer;
+    padding: 6px;
+    color: #a8abb2;
 }
 
-.icon-btn.delete {
-    color: #ff4d4f; /* 删除红色，但不刺眼 */
-}
-
-/* 底部按钮 */
-.bottom-placeholder {
-    height: 80px;
-}
-
-.bottom-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 70px; /* 稍微调矮一点 */
-    background-color: #fff;
+.add-address-row {
+    margin: 20px 12px 0;
     display: flex;
     justify-content: center;
-    align-items: center;
-    box-shadow: 0 -1px 6px rgba(0,0,0,0.05);
-    z-index: 100;
 }
 
 .add-btn {
-    width: 90%;
-    height: 44px; /* 移动端按钮标准高度 */
+    width: 100%;
+    height: 44px;
     font-size: 15px;
     font-weight: 500;
+    background-color: #fff;
+    color: #409eff;
+    border: 1px dashed #409eff;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
 }
 </style>
