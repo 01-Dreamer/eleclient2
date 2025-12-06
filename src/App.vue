@@ -5,10 +5,13 @@
 
 <script lang="ts" setup>
 import NavBar from '@/components/NavBar.vue';
+import { useLocationStore } from './stores/location';
 
-const ws_url = import.meta.env.VITE_WS_URL;
-console.log(ws_url);
+const locationStore = useLocationStore();
+locationStore.startLocation();
 
+// const ws_url = import.meta.env.VITE_WS_URL;
+// console.log(ws_url);
 </script>
 
 <style>

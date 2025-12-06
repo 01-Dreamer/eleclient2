@@ -5,6 +5,8 @@ export const useUserStore = defineStore('user', () => {
     const user = ref({
         id: -1,
         email: '',
+        token: '',
+        locaton_text: '',
         is_login: true,
     })
 

@@ -8,7 +8,7 @@
             <Location v-else />
           </el-icon>
           <div class="location-text">
-            <span class="text-truncate">{{ location }}</span>
+            <span class="text-truncate">{{ location_text }}</span>
             <el-icon>
               <CaretBottom />
             </el-icon>
@@ -143,9 +143,13 @@
 import { ref, reactive } from 'vue';
 import { Location, Loading, Search, CaretBottom, Filter, Picture, MoreFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/user'
+import { useLocationStore } from '@/stores/location'
 
+const userStore = useUserStore();
+const locationStore = useLocationStore();
 const is_loading = ref(false);
-const location = ref('上海市普陀区长风生态商务区');
+const location_text = ref('');
 const search_input = ref('');
 const isSearchFocused = ref(false);
 
@@ -201,14 +205,14 @@ const businesses = ref([
   }
 ]);
 
-const getPosition = () => {
+const getPosition = async () => {
   is_loading.value = true;
-  console.log('正在获取定位...');
-  setTimeout(() => {
-    location.value = '定位成功：北京市朝阳区';
-    is_loading.value = false;
-    ElMessage.success('定位更新成功');
-  }, 1000);
+  try {
+    location_text.value = await locationStore.getLocationText();
+  } catch(e) {
+    ElMessage.error('获取位置失败');
+  }
+  is_loading.value = false;
 };
 
 const handleSearchFocus = () => {
@@ -283,9 +287,11 @@ header {
 }
 
 .text-truncate {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .search-box {
