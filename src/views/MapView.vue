@@ -13,32 +13,44 @@ import HeaderBase from '@/components/HeaderBase.vue';
 import { ref, onMounted, onUnmounted } from 'vue';
 import AMapLoader from '@amap/amap-jsapi-loader';
 
+(window as any)._AMapSecurityConfig = {
+  securityJsCode: '9014d78e66eebdc92f9c68f8b4ae2693',
+};
+
 const map_ref = ref<HTMLElement | null>(null);
 let map_instance: any = null; 
 let my_marker: any = null;
 let rider_marker: any = null;
+let AMapObj: any = null;
+let driving_route: any = null;
 const distance = ref('');
 
 const my_location = ref<[number, number]>([116.397428, 39.90923]); 
 const rider_location = ref<[number, number]>([116.410792, 39.921131]); 
 
 const calculateDistance = (point_1: [number, number], point_2: [number, number]) => {
-  const get_radians = (degree: number) => degree * Math.PI / 180.0;
-  const radian_latitude_1 = get_radians(point_1[1]);
-  const radian_latitude_2 = get_radians(point_2[1]);
-  const difference_latitude = radian_latitude_1 - radian_latitude_2;
-  const difference_longitude = get_radians(point_1[0]) - get_radians(point_2[0]);
-  let s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(difference_latitude / 2), 2) + 
-    Math.cos(radian_latitude_1) * Math.cos(radian_latitude_2) * Math.pow(Math.sin(difference_longitude / 2), 2)));
-  s = s * 6378.137; 
-  if (s < 1) {
-    return Math.round(s * 1000) + 'm';
-  }
-  return s.toFixed(2) + 'km';
+  if (!AMapObj || !driving_route) return;
+
+  driving_route.clear();
+
+  driving_route.search(
+    new AMapObj.LngLat(point_1[0], point_1[1]),
+    new AMapObj.LngLat(point_2[0], point_2[1]),
+    (status: string, result: any) => {
+      if (status === 'complete') {
+        const s = result.routes[0].distance;
+        if (s < 1000) {
+          distance.value = s + 'm';
+        } else {
+          distance.value = (s / 1000).toFixed(2) + 'km';
+        }
+      }
+    }
+  );
 };
 
 const updateDistance = () => {
-  distance.value = calculateDistance(my_location.value, rider_location.value);
+  calculateDistance(rider_location.value, my_location.value);
 };
 
 const updateMyLocation = (latitude: number, longitude: number) => {
@@ -59,14 +71,22 @@ const updateRiderLocation = (latitude: number, longitude: number) => {
 
 const initMap = () => {
   AMapLoader.load({
-    key: "2284fe5929eb4616f50e922d0cf6fbd0", 
+    key: "af0fa92e8323040428b2b991461e2732", 
     version: "2.0",
-    plugins: [],
+    plugins: ['AMap.Riding'],
   }).then((AMap) => {
+    AMapObj = AMap;
     map_instance = new AMap.Map(map_ref.value, {
       viewMode: "2D",
       zoom: 13,
       center: my_location.value,
+    });
+
+    driving_route = new AMap.Driving({
+      map: map_instance,
+      hideMarkers: true,
+      showTraffic: false,
+      autoFitView: true,
     });
 
     const my_icon = new AMap.Icon({
@@ -97,6 +117,7 @@ const initMap = () => {
 
     map_instance.add([my_marker, rider_marker]);
     map_instance.setFitView();
+    updateDistance();
 
   }).catch((e) => {
     console.error(e);
@@ -104,7 +125,6 @@ const initMap = () => {
 };
 
 onMounted(() => {
-  updateDistance();
   initMap();
 });
 
@@ -112,6 +132,10 @@ onUnmounted(() => {
   if (map_instance) {
     map_instance.destroy();
     map_instance = null;
+  }
+  if (driving_route) {
+    driving_route.clear();
+    driving_route = null;
   }
 });
 
